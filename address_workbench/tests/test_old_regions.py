@@ -21,7 +21,7 @@ class RenameTests(unittest.TestCase):
         self.assertEqual(rename_for_matching(None), (None, []))
 
 
-@unittest.skipUnless(find_spec("address_standardizer"), "기존 address_standardizer는 배포본에 포함하지 않음")
+@unittest.skipUnless(find_spec("address_standardizer"), "address_standardizer를 불러올 수 없음")
 class PipelineAdapterRenameTests(unittest.TestCase):
     def test_pipeline_sees_new_name_and_result_keeps_original(self):
         from address_standardizer.contracts import AddressResult, BatchResult, DatasetResult

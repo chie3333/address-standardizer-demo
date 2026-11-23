@@ -2,7 +2,7 @@
 
 한국 주소를 기준자료와 대조하고, 확정 결과와 검토 후보를 확인하는 로컬 웹 애플리케이션입니다. 주소 한 건 또는 CSV/XLSX를 입력하고, 판정 근거·후보 비교·처리 이력을 확인하며 결과를 CSV/JSON으로 내려받을 수 있습니다.
 
-이 저장소는 **워크벤치 + 새 파이프라인 + BigQuery 엔진**으로 구성한 시연용 배포본입니다. 기준자료와 실제 인증 정보는 포함하지 않습니다. GitHub 링크는 코드와 안내를 공유하는 용도이며, 앱은 아래 명령으로 각자의 컴퓨터에서 실행합니다.
+이 저장소는 **워크벤치 + 주소 정제·표준화 파이프라인 + BigQuery 엔진**으로 구성한 시연용 배포본입니다. 사용자가 지정한 원본 `src/address/data`도 `data/`에 함께 포함합니다. 실제 인증 정보는 포함하지 않습니다. GitHub 링크는 코드와 안내를 공유하는 용도이며, 앱은 아래 명령으로 각자의 컴퓨터에서 실행합니다.
 
 ## 1. 준비된 예시로 화면 보기
 
@@ -49,27 +49,39 @@ Copy-Item .env.example .env
 | 실행 모드 | 준비할 항목 |
 |---|---|
 | `--demo` | 준비된 가상 사례. 실제 주소 검색·AI 호출 없음 |
-| `--engine new_pipeline` | RAW 주소 기준자료와 폐지 이력 parquet 두 파일 |
+| `--engine pipeline` | 카탈로그 DB, 연도별 RAW parquet, OpenAI 또는 Ollama 파서 |
 | `--engine bigquery` | Google 인증, 실제 GCP 프로젝트·데이터세트, 준비된 기준 테이블 |
 | AI 교정·추가 분석 | 본인의 `OPENAI_API_KEY`, `OPENAI_MODEL` |
 
-## 3. 새 파이프라인으로 실제 주소 처리
+## 3. 주소 표준화 파이프라인으로 실제 주소 처리
 
-별도로 전달받거나 준비한 다음 두 파일을 `data/`에 둡니다. 임의의 주소 CSV로 대체할 수 없으며, 파이프라인 SQL이 사용하는 원본 열 구성을 유지해야 합니다.
+[capstone_preparation의 `src/address/pipeline`](https://github.com/chie3333/capstone_preparation/tree/be7b3c2cd1ab3740d7eaafa4d18ab58a2dffeb62/src/address/pipeline)을 가져왔습니다. 원본 Python 코드의 내용을 유지하고, 워크벤치의 import 이름에 맞춰 **`address_standardizer/`**에 배치했습니다. 원본 기준 커밋은 `be7b3c2cd1ab3740d7eaafa4d18ab58a2dffeb62`입니다.
+
+지정한 원본의 `src/address/data` 폴더를 그대로 `data/`에 포함했습니다. 파이프라인에서 사용하는 카탈로그와 연도별 RAW는 아래 위치에 있으며, 폐지 이력·검증 사례도 원본 폴더에 포함된 상태로 함께 제공합니다.
 
 ```text
 data/
+├── address_reference_lite/
+│   └── address_catalog.duckdb
 ├── RAW_DATA_2025.parquet
-└── ADDRESS_HISTORY_202410_202512.parquet
+├── RAW_DATA_2024.parquet
+├── RAW_DATA_2023.parquet
+├── ADDRESS_HISTORY_202410_202512.parquet
+└── test/
 ```
 
-다른 위치에 보관한다면 `.env`의 `ADDRESS_RAW_PARQUET`, `ADDRESS_HISTORY_PARQUET`를 변경합니다. 폐지 이력 파일도 실제 처리에 필요합니다. 별도의 DuckDB 기준표 파일을 미리 만들 필요는 없습니다.
+`.env`의 `ADDRESS_CATALOG`, `ADDRESS_RAW_DIR`, `ADDRESS_YEAR`로 경로와 기준연도를 지정합니다. 기본 `ADDRESS_HISTORY=2024,2023`은 과거 연도 조회를 함께 사용합니다. 과거 자료가 없다면 **`ADDRESS_HISTORY=`로 비워** 기준연도 RAW와 카탈로그만 사용합니다. 이 파이프라인에는 별도의 폐지 이력 parquet가 필요하지 않습니다.
+
+파서는 다음 중 하나를 준비합니다. 이 파이프라인은 주소 명칭 추출에 LLM을 사용하므로 실제 처리에 파서 연결이 필요합니다.
+
+- **OpenAI**: `.env`에 `ADDRESS_PARSER=openai`, 본인의 `OPENAI_API_KEY`와 `OPENAI_MODEL`을 지정합니다. 요청에 따른 API 비용이 발생할 수 있습니다.
+- **Ollama**: Ollama 서버를 실행하고 사용할 모델을 내려받은 뒤 `ADDRESS_PARSER=ollama`, `ADDRESS_OLLAMA_MODEL=설치한모델태그`로 지정합니다. 기본 서버 주소는 `127.0.0.1:11434`입니다.
 
 ```bash
-python run.py --engine new_pipeline
+python run.py --engine pipeline
 ```
 
-기본 설정은 `ADDRESS_PIPELINE_LLM=0`이므로 AI 없이 규칙 매칭과 후보 검색을 실행합니다. AI 원문 구분·표기 교정을 사용하려면 `.env`의 키와 모델을 채우고 `ADDRESS_PIPELINE_LLM=1`로 바꾼 뒤 서버를 다시 실행합니다. AI 결과는 기준자료로 다시 확인하고 검토 후보로 제시합니다.
+실행 순서는 입력 정리·전처리 → LLM 명칭 추출 → 지역 검증 → 상세주소 검색 → 표준화·검토 후보 구성입니다. `ADDRESS_INPUT_CLEANUP=0`이면 선택적 입력 정리를 끄고, `ADDRESS_DETAIL_RECOVERY=1`이면 상세 단계 LLM 검색 가설을 추가로 사용합니다. 상세 단계 복구는 기본값 `0`입니다.
 
 ## 4. BigQuery 엔진으로 실제 주소 처리
 
@@ -90,10 +102,10 @@ BigQuery는 조회와 입력 테이블 기록·정리에 필요한 권한을 사
 두 엔진을 한 화면에서 비교하려면 각각의 준비를 마친 뒤 실행합니다.
 
 ```bash
-python run.py --engine new_pipeline --engine bigquery --port 8770
+python run.py --engine pipeline --engine bigquery --port 8770
 ```
 
-http://127.0.0.1:8770 에서 **처리 엔진**을 선택합니다. 아무 엔진 옵션 없이 실행하면 새 파이프라인이 기본입니다. 시연 모드와 실제 엔진은 한 번에 함께 선택하지 않습니다.
+http://127.0.0.1:8770 에서 **처리 엔진**을 선택합니다. 아무 엔진 옵션 없이 실행하면 주소 표준화 파이프라인이 기본입니다. 시연 모드와 실제 엔진은 한 번에 함께 선택하지 않습니다.
 
 ## 5. 워크벤치 사용
 
@@ -110,30 +122,30 @@ http://127.0.0.1:8770 에서 **처리 엔진**을 선택합니다. 아무 엔진
 
 ```text
 address_workbench/   웹 화면, HTTP 서버, 작업·승인, 결과 변환, BigQuery 어댑터
-address_pipeline/    규칙 매칭 → 후보 도구 → 선택적 LLM → 결과 구성
+address_standardizer/ 지정한 원본 pipeline 코드: LLM 파싱·지역 검증·상세주소 검색
 bigquery/           BigQuery SQL, 규칙 문서, 입출력 보조 도구
+data/               지정한 원본의 기준자료·카탈로그·검증 사례
 run.py              루트 .env를 읽는 실행 스크립트
 .env.example        경로·엔진·AI 설정 예시
 ```
 
-기존 `address_standardizer` 엔진과 별도 DuckDB 엔진은 이 배포본의 실행 메뉴에 포함하지 않았습니다. 새 파이프라인 자체는 DuckDB 라이브러리를 사용합니다. 세부 설명은 [워크벤치](address_workbench/README.md), [파이프라인](address_pipeline/README.md), [BigQuery](bigquery/README.md)를 참고하세요.
+파이프라인은 지정한 원본을 `address_standardizer`라는 패키지 이름으로 사용합니다. 세부 설명은 [워크벤치](address_workbench/README.md), [파이프라인](address_standardizer/README.md), [BigQuery](bigquery/README.md)를 참고하세요.
 
 ## 확인과 문제 해결
 
 ```bash
 python -m unittest discover -s address_workbench/tests -v
-python -m unittest discover -s address_pipeline/tests -t . -v
 node --test address_workbench/tests/*.test.mjs
 ```
 
-Node.js는 프론트엔드 테스트에만 필요합니다. 데이터나 제외된 기존 엔진이 필요한 테스트는 건너뜁니다. 실제 기준자료·Google 인증 없이 실행한 단위 테스트가 BigQuery 실서비스 연결을 보장하지는 않습니다.
+Node.js는 프론트엔드 테스트에만 필요합니다. 별도 기준자료가 필요한 테스트는 파일이 없으면 건너뜁니다. 지정한 원본 pipeline 폴더에는 테스트 파일이 포함되어 있지 않습니다. 실제 기준자료·Google 인증 없이 실행한 단위 테스트가 BigQuery 실서비스 연결을 보장하지는 않습니다.
 
 | 증상 | 확인할 내용 |
 |---|---|
-| `기준자료 파일이 없습니다` | `.env`의 두 parquet 경로와 실제 파일 확인 |
+| `기준자료 파일이 없습니다` | GitHub에서 data 폴더까지 받았는지와 `.env`의 경로 확인 |
 | BigQuery 인증·권한·테이블 오류 | ADC 로그인, 프로젝트 ID, 리전, 테이블 준비·권한 확인 |
 | OpenAI 키·모델 오류 | `.env` 또는 `ADDRESS_OPENAI_ENV`의 설정 확인. 별도 설정 파일을 지정했다면 그 파일의 값 사용 |
 | 설정을 바꿨는데 반영되지 않음 | `python run.py`로 실행했는지 확인하고 서버 재시작. 기존 운영체제 환경 변수도 확인 |
 | 포트가 이미 사용 중 | `python run.py --demo --port 8771`처럼 다른 포트 지정 |
 
-실제 `.env`, API 키, 서비스 계정 JSON, 기준자료와 처리 결과는 `.gitignore`로 제외합니다. 이 저장소에는 실행 예시만 포함합니다.
+실제 `.env`, API 키, 서비스 계정 JSON과 새로 생성한 처리 결과는 `.gitignore`로 제외합니다. `data/`에는 사용자가 요청한 원본 기준자료와 검증 사례만 명시적으로 포함합니다.

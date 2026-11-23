@@ -32,7 +32,7 @@ STATIC = {
 
 # 이름 → 어댑터 팩토리. --engine으로 여러 개를 골라 한 서버에 올리면 화면에서 엔진을 고른다.
 ENGINES = {
-    "new_pipeline": ("새 파이프라인", "address_pipeline:create_adapter"),
+    "pipeline": ("주소 표준화 파이프라인", "address_workbench.standardizer:create_adapter"),
     "bigquery": ("BigQuery 엔진", "address_workbench.bigquery_engine:create_adapter"),
 }
 
@@ -269,8 +269,8 @@ def main():
     parser.add_argument("--public-origin", help="HTTPS 프록시를 통한 접속 주소, 예: https://address.example.com")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--engine", action="append", choices=sorted(ENGINES),
-                      help="올릴 처리 엔진. 여러 번 쓰면 화면에서 고른다(첫 번째가 기본). 예: --engine new_pipeline --engine bigquery")
-    mode.add_argument("--adapter", help="다른 처리 어댑터의 module:factory (기본: address_pipeline)")
+                      help="올릴 처리 엔진. 여러 번 쓰면 화면에서 고른다(첫 번째가 기본). 예: --engine pipeline --engine bigquery")
+    mode.add_argument("--adapter", help="다른 처리 어댑터의 module:factory (기본: address_standardizer 파이프라인)")
     mode.add_argument("--demo", action="store_true", help="시연용 예시 데이터로 실행")
     args = parser.parse_args()
     if args.public_origin:
@@ -284,7 +284,7 @@ def main():
         engines = [Engine("pipeline", "연결된 파이프라인", load_adapter(args.adapter), "pipeline")]
     else:
         engines = []
-        for key in dict.fromkeys(args.engine or ["new_pipeline"]):
+        for key in dict.fromkeys(args.engine or ["pipeline"]):
             label, spec = ENGINES[key]
             print(f"{label}을 불러오는 중...", flush=True)
             try:

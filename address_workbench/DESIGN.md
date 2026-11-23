@@ -4,7 +4,7 @@
 
 ```text
 web/ → server.py → tabular.py / InputRecord
-                  → jobs.py → DemoAdapter / AddressPipeline / BigQueryEngineAdapter
+                  → jobs.py → DemoAdapter / PipelineAdapter / BigQueryEngineAdapter
                   → 결과·승인·추가 분석 → CSV / JSON
 ```
 
@@ -18,9 +18,9 @@ web/ → server.py → tabular.py / InputRecord
 
 ## 엔진 경계
 
-`server.py`의 `ENGINES`에 새 파이프라인과 BigQuery 엔진을 등록합니다. 시연 모드는 준비된 가상 결과만 반환합니다. 새 파이프라인은 로컬 parquet와 DuckDB 라이브러리를, BigQuery 엔진은 클라우드 테이블과 `bigquery/sql/`을 사용합니다. 두 엔진 모두 같은 화면·승인·내려받기를 사용합니다.
+`server.py`의 `ENGINES`에 주소 표준화 파이프라인과 BigQuery 엔진을 등록합니다. 시연 모드는 준비된 가상 결과만 반환합니다. 주소 표준화 파이프라인은 LLM 파서·카탈로그 DB·연도별 RAW parquet를, BigQuery 엔진은 클라우드 테이블과 `bigquery/sql/`을 사용합니다. 두 엔진 모두 같은 화면·승인·내려받기를 사용합니다.
 
-`adapter.py`의 기존 `PipelineAdapter`는 선택적 호환 코드이며 기본 실행에 쓰이지 않습니다. 해당 코드가 요구하는 기존 `address_standardizer`는 이 저장소에 포함하지 않습니다.
+`standardizer.py`는 `address_standardizer/`의 원본 파이프라인을 구성하고 `PipelineAdapter`로 연결합니다. 코드 출처는 `capstone_preparation/src/address/pipeline`이며 루트 README에 기준 커밋을 기록합니다.
 
 ## 작업과 세션
 

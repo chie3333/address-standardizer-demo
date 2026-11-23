@@ -1,0 +1,2405 @@
+{
+  "reference_year": 2025,
+  "fixtures": [
+    {
+      "fixture_id": "FIX-001",
+      "category": 5,
+      "error_type": "토큰 누락",
+      "address_id": "ADDR-2025-0142",
+      "target": "LLM 명칭 파싱·원문 대조",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "stub_response": "경상남도 김해시 삼정동"
+      },
+      "expected": {
+        "expected_names": [
+          "경상남도",
+          "김해시",
+          "삼정동",
+          "인제로39번길"
+        ],
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "누락된 도로명을 잔여 원문에서 확인하고, 보완·검증 전에는 다른 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-002",
+      "category": 5,
+      "error_type": "토큰 변형",
+      "address_id": "ADDR-2025-0142",
+      "target": "LLM 명칭 파싱·원문 대조",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "stub_response": "경상남도 김해시 삼정동 인제로39번긷"
+      },
+      "expected": {
+        "expected_names": [
+          "경상남도",
+          "김해시",
+          "삼정동",
+          "인제로39번길"
+        ],
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "원문 도로명과 모델 응답을 구분해서 기록하고, 모델이 바꾼 이름으로 다른 주소를 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-003",
+      "category": 5,
+      "error_type": "잘못된 라벨",
+      "address_id": "ADDR-2025-0142",
+      "target": "라벨이 있는 파서 경로 또는 지역 검증 입력",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "stub_response": [
+          {
+            "raw": "경상남도",
+            "labels": [
+              "시도"
+            ]
+          },
+          {
+            "raw": "김해시",
+            "labels": [
+              "시군구"
+            ]
+          },
+          {
+            "raw": "삼정동",
+            "labels": [
+              "읍면동"
+            ]
+          },
+          {
+            "raw": "인제로39번길",
+            "labels": [
+              "읍면동"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "expected_names": [
+          "경상남도",
+          "김해시",
+          "삼정동",
+          "인제로39번길"
+        ],
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "도로명으로 기준 DB에서 검증한다. 주입한 읍면동 라벨을 확정에 사용하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-004",
+      "category": 5,
+      "error_type": "복합 토큰",
+      "address_id": "ADDR-2025-0142",
+      "target": "LLM 명칭 파싱·원문 대조",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "stub_response": "경상남도 김해시 삼정동인제로39번길"
+      },
+      "expected": {
+        "expected_names": [
+          "경상남도",
+          "김해시",
+          "삼정동",
+          "인제로39번길"
+        ],
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "인접한 두 명칭을 분리하거나 경계 미확인으로 보류한다."
+    },
+    {
+      "fixture_id": "FIX-005",
+      "category": 5,
+      "error_type": "과도한 분리",
+      "address_id": "ADDR-2025-0142",
+      "target": "LLM 명칭 파싱·원문 대조",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "stub_response": "경상남도 김해시 삼정동 인 제로39번길"
+      },
+      "expected": {
+        "expected_names": [
+          "경상남도",
+          "김해시",
+          "삼정동",
+          "인제로39번길"
+        ],
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "분리된 조각을 다른 지역으로 확정하기 전에 원문 도로명과 대조한다."
+    },
+    {
+      "fixture_id": "FIX-006",
+      "category": 5,
+      "error_type": "중복 추출",
+      "address_id": "ADDR-2025-0142",
+      "target": "LLM 명칭 파싱·원문 대조",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "stub_response": "경상남도 김해시 삼정동 인제로39번길 인제로39번길"
+      },
+      "expected": {
+        "expected_names": [
+          "경상남도",
+          "김해시",
+          "삼정동",
+          "인제로39번길"
+        ],
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "원문 위치 하나가 여러 토큰에 배정되지 않아야 한다."
+    },
+    {
+      "fixture_id": "FIX-007",
+      "category": 5,
+      "error_type": "순서 변경",
+      "address_id": "ADDR-2025-0142",
+      "target": "LLM 명칭 파싱·원문 대조",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "stub_response": "인제로39번길 삼정동 김해시 경상남도"
+      },
+      "expected": {
+        "expected_names": [
+          "경상남도",
+          "김해시",
+          "삼정동",
+          "인제로39번길"
+        ],
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "복원한 토큰과 잔여 문자열의 위치는 원문 순서를 따른다."
+    },
+    {
+      "fixture_id": "FIX-008",
+      "category": 5,
+      "error_type": "라벨 후보 누락",
+      "address_id": "ADDR-2025-0050",
+      "target": "라벨이 있는 파서 경로 또는 지역 검증 입력",
+      "input": {
+        "raw_address": "전남 영암군 삼호읍 산호리 대촌길 30",
+        "stub_response": [
+          {
+            "raw": "전남",
+            "labels": [
+              "시군구"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "expected_names": [
+          "전라남도",
+          "영암군",
+          "삼호읍",
+          "산호리",
+          "대촌길"
+        ],
+        "standardization": {
+          "standard_road_address": "전라남도 영암군 삼호읍 대촌길 30",
+          "road_name_code": "468304685139",
+          "legal_dong_code": "4683025325",
+          "administrative_area_code": "36610120"
+        }
+      },
+      "check": "단일 라벨 때문에 시도 약칭의 실제 지역 경로를 잃지 않는다."
+    },
+    {
+      "fixture_id": "FIX-009",
+      "category": 5,
+      "error_type": "숫자 오인",
+      "address_id": "ADDR-2025-0006",
+      "target": "LLM 명칭 파싱·원문 대조",
+      "input": {
+        "raw_address": "충청남도 보령시 웅천읍 대천리 구장터1길 8",
+        "stub_response": "충청남도 보령시 웅천읍 대천리 구장터 1 길"
+      },
+      "expected": {
+        "expected_names": [
+          "충청남도",
+          "보령시",
+          "웅천읍",
+          "대천리",
+          "구장터1길"
+        ],
+        "standardization": {
+          "standard_road_address": "충청남도 보령시 웅천읍 구장터1길 8",
+          "road_name_code": "441804556069",
+          "legal_dong_code": "4418025025",
+          "administrative_area_code": "34030110"
+        }
+      },
+      "check": "도로명 안의 숫자를 건물번호에 사용하지 않고, 원본 건물 본번·부번을 따로 검증한다."
+    },
+    {
+      "fixture_id": "FIX-010",
+      "category": 5,
+      "error_type": "상세주소 혼동",
+      "address_id": "ADDR-2025-0057",
+      "target": "LLM 명칭 파싱·원문 대조",
+      "input": {
+        "raw_address": "서울특별시 성북구 성북동 선잠로5라길 2-10 101호",
+        "stub_response": "서울특별시 성북구 성북동 선잠로5라길 101호"
+      },
+      "expected": {
+        "standardization": {
+          "standard_road_address": "서울특별시 성북구 선잠로5라길 2-10",
+          "road_name_code": "112904121312",
+          "legal_dong_code": "1129010100",
+          "administrative_area_code": "11080810"
+        },
+        "detail": "101호"
+      },
+      "check": "101호를 지역명이나 건물 부번으로 사용하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-011",
+      "category": 5,
+      "error_type": "존재하지 않는 주소 생성",
+      "address_id": "ADDR-2025-0142",
+      "target": "LLM 명칭 파싱·원문 대조",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "stub_response": "경상남도 김해시 삼정동 인제로39번길가나다로"
+      },
+      "expected": {
+        "expected_names": [
+          "경상남도",
+          "김해시",
+          "삼정동",
+          "인제로39번길"
+        ],
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "원문과 2025년 기준자료에 없는 도로명을 정답으로 사용하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-012",
+      "category": 5,
+      "error_type": "JSON 구조 오류",
+      "address_id": "ADDR-2025-0142",
+      "target": "make_token_only_parser(generate_batch=...)",
+      "input": {
+        "request": [
+          {
+            "id": 0,
+            "address": "경상남도 김해시 삼정동 인제로39번길 47"
+          }
+        ],
+        "stub_response_raw": "{\"id\": 0, \"tokens\": \"경상남도 김해시 삼정동 인제로39번길\"}"
+      },
+      "expected": {
+        "trace_status": "failed",
+        "reason_code": "invalid_batch_response"
+      },
+      "check": "배치 응답의 최상위는 배열이어야 한다. 실패 사유를 이력에 남긴다."
+    },
+    {
+      "fixture_id": "FIX-013",
+      "category": 5,
+      "error_type": "JSON 구조 오류",
+      "address_id": "ADDR-2025-0142",
+      "target": "make_token_only_parser(generate_batch=...)",
+      "input": {
+        "request": [
+          {
+            "id": 0,
+            "address": "경상남도 김해시 삼정동 인제로39번길 47"
+          }
+        ],
+        "stub_response_raw": "[{\"id\":0}]"
+      },
+      "expected": {
+        "trace_status": "failed",
+        "standardization": null,
+        "reason_code": "invalid_token_response"
+      },
+      "check": "토큰 필드가 빠진 행은 파싱 실패로 기록한다."
+    },
+    {
+      "fixture_id": "FIX-014",
+      "category": 5,
+      "error_type": "ID 불일치",
+      "address_id": "ADDR-2025-0142",
+      "target": "make_token_only_parser(generate_batch=...)",
+      "input": {
+        "request": [
+          {
+            "id": 0,
+            "address": "경상남도 김해시 삼정동 인제로39번길 47"
+          },
+          {
+            "id": 1,
+            "address": "인천광역시 강화군 하점면 강화대로 1114"
+          }
+        ],
+        "stub_response": [
+          {
+            "id": 0,
+            "tokens": "경상남도 김해시 삼정동 인제로39번길"
+          },
+          {
+            "id": 0,
+            "tokens": "인천광역시 강화군 하점면 장정리 강화대로"
+          },
+          {
+            "id": 9,
+            "tokens": "인천광역시 강화군 하점면 장정리 강화대로"
+          }
+        ]
+      },
+      "expected": {
+        "reasons_by_id": {
+          "0": "duplicate_batch_id",
+          "1": "missing_batch_id"
+        },
+        "standardization": null
+      },
+      "check": "응답 ID가 누락되거나 중복되어도 다른 입력 행에 토큰을 붙이지 않는다."
+    },
+    {
+      "fixture_id": "FIX-015",
+      "category": 5,
+      "error_type": "비결정적 출력",
+      "address_id": "ADDR-2025-0142",
+      "target": "같은 주소로 파싱·검증 2회",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "stub_responses": [
+          "경상남도 김해시 삼정동 인제로39번길",
+          "경상남도 김해시 삼정동인제로39번길"
+        ]
+      },
+      "expected": {
+        "expected_names": [
+          "경상남도",
+          "김해시",
+          "삼정동",
+          "인제로39번길"
+        ],
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "다른 토큰 경계를 검증한 두 실행의 최종 주소·코드가 같은지 대조한다. 미해결 실행은 이력에 남긴다."
+    },
+    {
+      "fixture_id": "FIX-016",
+      "category": 1,
+      "error_type": "비정상 입력",
+      "address_id": "ADDR-2025-0142",
+      "target": "입력 준비와 전처리",
+      "input": {
+        "raw_address": null
+      },
+      "expected": {
+        "status": "excluded",
+        "reason_code": "blank_input"
+      },
+      "check": "JSON null을 입력해 빈 주소 제외를 확인한다."
+    },
+    {
+      "fixture_id": "FIX-017",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "강원특별자치도 횡성군 둔내면 석문리 경강로 4797-16",
+        "reference_filters": {
+          "sido": "강원특별자치도",
+          "sgg": "횡성군",
+          "emd": "둔내면",
+          "ri": "석문리",
+          "road": "경강로",
+          "bm": 4797,
+          "bs": 16
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 3,
+          "raw_record_ids": [
+            "7384846",
+            "7384847",
+            "7384848"
+          ],
+          "example_address": {
+            "standard_road_address": "강원특별자치도 횡성군 둔내면 경강로 4797-16",
+            "road_name_code": "517303000145",
+            "legal_dong_code": "5173033028",
+            "administrative_area_code": "32520330"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-018",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "경상남도 합천군 가회면 중촌리 동곡길 209",
+        "reference_filters": {
+          "sido": "경상남도",
+          "sgg": "합천군",
+          "emd": "가회면",
+          "ri": "중촌리",
+          "road": "동곡길",
+          "bm": 209,
+          "bs": 0
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 6,
+          "raw_record_ids": [
+            "6888480",
+            "6888481",
+            "6888482",
+            "6888483",
+            "6888484",
+            "6888485"
+          ],
+          "example_address": {
+            "standard_road_address": "경상남도 합천군 가회면 동곡길 209",
+            "road_name_code": "488904844184",
+            "legal_dong_code": "4889044025",
+            "administrative_area_code": "38600440"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-019",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "경기도 화성시 배양동 융건로 151",
+        "reference_filters": {
+          "sido": "경기도",
+          "sgg": "화성시",
+          "emd": "배양동",
+          "ri": "",
+          "road": "융건로",
+          "bm": 151,
+          "bs": 0
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 1,
+          "raw_record_ids": [
+            "2753352"
+          ],
+          "example_address": {
+            "standard_road_address": "경기도 화성시 융건로 151",
+            "road_name_code": "415903210087",
+            "legal_dong_code": "4159012300",
+            "administrative_area_code": "31240560"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-020",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "충청남도 천안시 서북구 성환읍 복모리 복모1길 51",
+        "reference_filters": {
+          "sido": "충청남도",
+          "sgg": "천안시 서북구",
+          "emd": "성환읍",
+          "ri": "복모리",
+          "road": "복모1길",
+          "bm": 51,
+          "bs": 0
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 2,
+          "raw_record_ids": [
+            "3665331",
+            "3665332"
+          ],
+          "example_address": {
+            "standard_road_address": "충청남도 천안시 서북구 성환읍 복모1길 51",
+            "road_name_code": "441334550217",
+            "legal_dong_code": "4413325030",
+            "administrative_area_code": "34012110"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-021",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "강원특별자치도 양양군 서면 서선리 들돌길 280-1",
+        "reference_filters": {
+          "sido": "강원특별자치도",
+          "sgg": "양양군",
+          "emd": "서면",
+          "ri": "서선리",
+          "road": "들돌길",
+          "bm": 280,
+          "bs": 1
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 3,
+          "raw_record_ids": [
+            "7629276",
+            "7629277",
+            "7629278"
+          ],
+          "example_address": {
+            "standard_road_address": "강원특별자치도 양양군 서면 들돌길 280-1",
+            "road_name_code": "518304505065",
+            "legal_dong_code": "5183031031",
+            "administrative_area_code": "32610310"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-022",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "경기도 성남시 중원구 상대원동 희망로375번길 6-4",
+        "reference_filters": {
+          "sido": "경기도",
+          "sgg": "성남시 중원구",
+          "emd": "상대원동",
+          "ri": "",
+          "road": "희망로375번길",
+          "bm": 6,
+          "bs": 4
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 2,
+          "raw_record_ids": [
+            "1951098",
+            "1951099"
+          ],
+          "example_address": {
+            "standard_road_address": "경기도 성남시 중원구 희망로375번길 6-4",
+            "road_name_code": "411334337451",
+            "legal_dong_code": "4113310500",
+            "administrative_area_code": "31022580"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-023",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "전라남도 함평군 함평읍 내교리 중앙길 111",
+        "reference_filters": {
+          "sido": "전라남도",
+          "sgg": "함평군",
+          "emd": "함평읍",
+          "ri": "내교리",
+          "road": "중앙길",
+          "bm": 111,
+          "bs": 0
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 1,
+          "raw_record_ids": [
+            "4924292"
+          ],
+          "example_address": {
+            "standard_road_address": "전라남도 함평군 함평읍 중앙길 111",
+            "road_name_code": "468604691284",
+            "legal_dong_code": "4686025023",
+            "administrative_area_code": "36630110"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-024",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "충청남도 아산시 선장면 군덕리 선장로 106-5",
+        "reference_filters": {
+          "sido": "충청남도",
+          "sgg": "아산시",
+          "emd": "선장면",
+          "ri": "군덕리",
+          "road": "선장로",
+          "bm": 106,
+          "bs": 5
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 7,
+          "raw_record_ids": [
+            "3786588",
+            "3786589",
+            "3786590",
+            "3786591",
+            "3786592",
+            "3786593",
+            "3786594"
+          ],
+          "example_address": {
+            "standard_road_address": "충청남도 아산시 선장면 선장로 106-5",
+            "road_name_code": "442003253043",
+            "legal_dong_code": "4420039021",
+            "administrative_area_code": "34040380"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-025",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "경기도 수원시 장안구 영화동 수성로 392-5",
+        "reference_filters": {
+          "sido": "경기도",
+          "sgg": "수원시 장안구",
+          "emd": "영화동",
+          "ri": "",
+          "road": "수성로",
+          "bm": 392,
+          "bs": 5
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 1,
+          "raw_record_ids": [
+            "1857200"
+          ],
+          "example_address": {
+            "standard_road_address": "경기도 수원시 장안구 수성로 392-5",
+            "road_name_code": "411113175034",
+            "legal_dong_code": "4111113400",
+            "administrative_area_code": "31011580"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-026",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "강원특별자치도 원주시 신림면 송계리 솔치안길 128",
+        "reference_filters": {
+          "sido": "강원특별자치도",
+          "sgg": "원주시",
+          "emd": "신림면",
+          "ri": "송계리",
+          "road": "솔치안길",
+          "bm": 128,
+          "bs": 0
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 3,
+          "raw_record_ids": [
+            "7187907",
+            "7187908",
+            "7187909"
+          ],
+          "example_address": {
+            "standard_road_address": "강원특별자치도 원주시 신림면 솔치안길 128",
+            "road_name_code": "511304457378",
+            "legal_dong_code": "5113039027",
+            "administrative_area_code": "32020380"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-027",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "서울특별시 서대문구 창천동 연세로2가길 16",
+        "reference_filters": {
+          "sido": "서울특별시",
+          "sgg": "서대문구",
+          "emd": "창천동",
+          "ri": "",
+          "road": "연세로2가길",
+          "bm": 16,
+          "bs": 0
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 2,
+          "raw_record_ids": [
+            "324732",
+            "324733"
+          ],
+          "example_address": {
+            "standard_road_address": "서울특별시 서대문구 연세로2가길 16",
+            "road_name_code": "114104136233",
+            "legal_dong_code": "1141011600",
+            "administrative_area_code": "11130750"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-028",
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_id": null,
+      "target": "연도별 기준자료 조회",
+      "input": {
+        "raw_address": "경상남도 하동군 하동읍 읍내리 중서2길 14",
+        "reference_filters": {
+          "sido": "경상남도",
+          "sgg": "하동군",
+          "emd": "하동읍",
+          "ri": "읍내리",
+          "road": "중서2길",
+          "bm": 14,
+          "bs": 0
+        },
+        "reference_years": [
+          2024,
+          2025
+        ]
+      },
+      "expected": {
+        "2024": {
+          "matched_rows": 2,
+          "raw_record_ids": [
+            "6703619",
+            "6703620"
+          ],
+          "example_address": {
+            "standard_road_address": "경상남도 하동군 하동읍 중서2길 14",
+            "road_name_code": "488504832415",
+            "legal_dong_code": "4885025021",
+            "administrative_area_code": "38560110"
+          }
+        },
+        "2025": {
+          "matched_rows": 0
+        }
+      },
+      "check": "2024년 후보의 기준연도를 표시하고 2025년 기준 주소로 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-029",
+      "category": 6,
+      "error_type": "후보 제한",
+      "address_id": "ADDR-2025-0706",
+      "target": "후보 제한 적용 전후 지역 조건 검증",
+      "input": {
+        "raw_address": "서면 199",
+        "ordered_candidates": [
+          {
+            "kind": "road",
+            "address": "충청남도 서천군 서면 동중길 39-38",
+            "rank": 1,
+            "raw_records": [
+              [
+                2025,
+                4081677
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 4081677"
+            ],
+            "linked_road_addresses": [
+              "충청남도 서천군 서면 동중길 39-38"
+            ],
+            "linked_lot_addresses": [
+              "충청남도 서천군 서면 도둔리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "전라남도 순천시 서면 매천로 435",
+            "rank": 2,
+            "raw_records": [
+              [
+                2025,
+                4368017
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 4368017"
+            ],
+            "linked_road_addresses": [
+              "전라남도 순천시 서면 매천로 435"
+            ],
+            "linked_lot_addresses": [
+              "전라남도 순천시 서면 구상리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "전라남도 순천시 서면 강청안길 12",
+            "rank": 3,
+            "raw_records": [
+              [
+                2025,
+                4370769
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 4370769"
+            ],
+            "linked_road_addresses": [
+              "전라남도 순천시 서면 강청안길 12"
+            ],
+            "linked_lot_addresses": [
+              "전라남도 순천시 서면 선평리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "전라남도 순천시 서면 운평길 98",
+            "rank": 4,
+            "raw_records": [
+              [
+                2025,
+                4401262
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 4401262"
+            ],
+            "linked_road_addresses": [
+              "전라남도 순천시 서면 운평길 98"
+            ],
+            "linked_lot_addresses": [
+              "전라남도 순천시 서면 운평리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "경상북도 경주시 서면 심곡로 689-4",
+            "rank": 5,
+            "raw_records": [
+              [
+                2025,
+                5201015
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 5201015"
+            ],
+            "linked_road_addresses": [
+              "경상북도 경주시 서면 심곡로 689-4"
+            ],
+            "linked_lot_addresses": [
+              "경상북도 경주시 서면 도리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "경상북도 울릉군 서면 남서길 587",
+            "rank": 6,
+            "raw_records": [
+              [
+                2025,
+                5951196
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 5951196"
+            ],
+            "linked_road_addresses": [
+              "경상북도 울릉군 서면 남서길 587"
+            ],
+            "linked_lot_addresses": [
+              "경상북도 울릉군 서면 남서리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "경상남도 남해군 서면 남서대로 1843-56",
+            "rank": 7,
+            "raw_records": [
+              [
+                2025,
+                6604580
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 6604580"
+            ],
+            "linked_road_addresses": [
+              "경상남도 남해군 서면 남서대로 1843-56"
+            ],
+            "linked_lot_addresses": [
+              "경상남도 남해군 서면 작장리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "경상남도 남해군 서면 정포로 26-5",
+            "rank": 8,
+            "raw_records": [
+              [
+                2025,
+                6612365
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 6612365"
+            ],
+            "linked_road_addresses": [
+              "경상남도 남해군 서면 정포로 26-5"
+            ],
+            "linked_lot_addresses": [
+              "경상남도 남해군 서면 중현리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "경상남도 남해군 서면 남서대로1528번길 43-7",
+            "rank": 9,
+            "raw_records": [
+              [
+                2025,
+                6620929
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 6620929"
+            ],
+            "linked_road_addresses": [
+              "경상남도 남해군 서면 남서대로1528번길 43-7"
+            ],
+            "linked_lot_addresses": [
+              "경상남도 남해군 서면 서상리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "강원특별자치도 홍천군 서면 한서로 2368-15",
+            "rank": 10,
+            "raw_records": [
+              [
+                2025,
+                7321601
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 7321601"
+            ],
+            "linked_road_addresses": [
+              "강원특별자치도 홍천군 서면 한서로 2368-15"
+            ],
+            "linked_lot_addresses": [
+              "강원특별자치도 홍천군 서면 굴업리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "강원특별자치도 홍천군 서면 팔봉산로 1208-26",
+            "rank": 11,
+            "raw_records": [
+              [
+                2025,
+                7335185
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 7335185"
+            ],
+            "linked_road_addresses": [
+              "강원특별자치도 홍천군 서면 팔봉산로 1208-26"
+            ],
+            "linked_lot_addresses": [
+              "강원특별자치도 홍천군 서면 어유포리 199"
+            ],
+            "admin_dongs": [
+              "서면"
+            ]
+          }
+        ],
+        "display_limit": 5,
+        "additional_location": {
+          "sido": "강원특별자치도",
+          "sgg": "홍천군",
+          "ri": "어유포리"
+        },
+        "accepted_raw_record_id": "7335185"
+      },
+      "expected": {
+        "raw_record_id": "7335185",
+        "candidate_position_before_filter": 11,
+        "outputs_after_filter": 1
+      },
+      "check": "정확한 지역 단서로 후보를 먼저 좁힌다. 표시 상한 때문에 실제 후보를 검사에서 빼지 않는다."
+    },
+    {
+      "fixture_id": "FIX-030",
+      "category": 6,
+      "error_type": "조기 탈락",
+      "address_id": "ADDR-2025-0142",
+      "target": "지역 라벨 후보 검증",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "name": "인제로39번길",
+        "candidate_labels": [
+          "읍면동",
+          "도로명"
+        ],
+        "expected_name_type": "도로명"
+      },
+      "expected": {
+        "standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "첫 번째 라벨이 맞지 않아도 두 번째 라벨로 같은 기준 행이 확인되는지 검사한다."
+    },
+    {
+      "fixture_id": "FIX-031",
+      "category": 6,
+      "error_type": "캐시 오류",
+      "address_id": "ADDR-2025-0053",
+      "target": "같은 작업 내 조회 캐시",
+      "input": {
+        "sequence": [
+          {
+            "raw_address": "대구광역시 군위군 삼국유사면 양지리 양지1길 39",
+            "expected_raw_record_id": "1204723"
+          },
+          {
+            "raw_address": "경상북도 의성군 사곡면 양지리 양지1길 39",
+            "expected_raw_record_id": "5692793"
+          }
+        ]
+      },
+      "expected": {
+        "ordered_standardizations": [
+          {
+            "standard_road_address": "대구광역시 군위군 삼국유사면 양지1길 39",
+            "road_name_code": "277204742184",
+            "legal_dong_code": "2772037027",
+            "administrative_area_code": "22520317"
+          },
+          {
+            "standard_road_address": "경상북도 의성군 사곡면 양지1길 39",
+            "road_name_code": "477304745335",
+            "legal_dong_code": "4773034031",
+            "administrative_area_code": "37520340"
+          }
+        ]
+      },
+      "check": "도로명과 번호가 같더라도 지역 범위가 다른 두 요청의 조회 결과를 서로 재사용하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-032",
+      "category": 7,
+      "error_type": "후보 점수 동률",
+      "address_id": "ADDR-2025-0053",
+      "target": "결과 판정 및 후보 비교",
+      "input": {
+        "result": {
+          "input_index": 0,
+          "record": {
+            "address_id": "ADDR-2025-0053",
+            "raw_address": "양지1길 39"
+          },
+          "status": "held",
+          "output": null,
+          "review": {
+            "status": "tied_candidates",
+            "candidates": [
+              {
+                "kind": "road",
+                "address": "대구광역시 군위군 삼국유사면 양지1길 39",
+                "rank": 1,
+                "raw_records": [
+                  [
+                    2025,
+                    1204723
+                  ]
+                ],
+                "reference_years": [
+                  2025
+                ],
+                "evidence": [
+                  "2025 RAW 일련번호 1204723"
+                ],
+                "linked_road_addresses": [
+                  "대구광역시 군위군 삼국유사면 양지1길 39"
+                ],
+                "linked_lot_addresses": [
+                  "대구광역시 군위군 삼국유사면 양지리 413"
+                ],
+                "admin_dongs": [
+                  "삼국유사면"
+                ]
+              },
+              {
+                "kind": "road",
+                "address": "경상북도 의성군 사곡면 양지1길 39",
+                "rank": 1,
+                "raw_records": [
+                  [
+                    2025,
+                    5692793
+                  ]
+                ],
+                "reference_years": [
+                  2025
+                ],
+                "evidence": [
+                  "2025 RAW 일련번호 5692793"
+                ],
+                "linked_road_addresses": [
+                  "경상북도 의성군 사곡면 양지1길 39"
+                ],
+                "linked_lot_addresses": [
+                  "경상북도 의성군 사곡면 양지리 521"
+                ],
+                "admin_dongs": [
+                  "사곡면"
+                ]
+              }
+            ]
+          },
+          "standardization": null,
+          "traces": []
+        }
+      },
+      "expected": {
+        "status": "held",
+        "review_status": "tied_candidates",
+        "candidate_count": 2,
+        "automatic_standardization": false
+      },
+      "check": "공동 1순위 두 후보를 표시하고 첫 항목을 정답으로 표시하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-033",
+      "category": 7,
+      "error_type": "후보 근거 누락",
+      "address_id": "ADDR-2025-0053",
+      "target": "후보 비교",
+      "input": {
+        "result": {
+          "input_index": 0,
+          "record": {
+            "address_id": "ADDR-2025-0053",
+            "raw_address": "양지1길 39"
+          },
+          "status": "held",
+          "output": null,
+          "review": {
+            "status": "tied_candidates",
+            "candidates": [
+              {
+                "kind": "road",
+                "address": "대구광역시 군위군 삼국유사면 양지1길 39",
+                "rank": 1,
+                "raw_records": [
+                  [
+                    2025,
+                    1204723
+                  ]
+                ],
+                "reference_years": [
+                  2025
+                ],
+                "evidence": [
+                  "2025 RAW 일련번호 1204723"
+                ],
+                "linked_road_addresses": [
+                  "대구광역시 군위군 삼국유사면 양지1길 39"
+                ],
+                "linked_lot_addresses": [
+                  "대구광역시 군위군 삼국유사면 양지리 413"
+                ],
+                "admin_dongs": [
+                  "삼국유사면"
+                ]
+              },
+              {
+                "kind": "road",
+                "address": "경상북도 의성군 사곡면 양지1길 39",
+                "rank": 1,
+                "raw_records": [
+                  [
+                    2025,
+                    5692793
+                  ]
+                ],
+                "reference_years": [
+                  2025
+                ],
+                "evidence": [
+                  "2025 RAW 일련번호 5692793"
+                ],
+                "linked_road_addresses": [
+                  "경상북도 의성군 사곡면 양지1길 39"
+                ],
+                "linked_lot_addresses": [
+                  "경상북도 의성군 사곡면 양지리 521"
+                ],
+                "admin_dongs": [
+                  "사곡면"
+                ]
+              }
+            ]
+          },
+          "standardization": null,
+          "traces": []
+        },
+        "candidate_comparisons": {
+          "ADDR-2025-0053": {
+            "0": [
+              {
+                "component": "도로명",
+                "input_value": "양지1길",
+                "candidate_value": "양지1길",
+                "outcome": "match",
+                "evidence": "2025 RAW 일련번호 1204723"
+              }
+            ],
+            "1": [
+              {
+                "component": "도로명",
+                "input_value": "양지1길",
+                "candidate_value": "양지1길",
+                "outcome": "match",
+                "evidence": "2025 RAW 일련번호 5692793"
+              }
+            ]
+          }
+        }
+      },
+      "expected": {
+        "visible_candidate_ids": [
+          "1204723",
+          "5692793"
+        ],
+        "show_evidence": true
+      },
+      "check": "후보별 대조 근거와 기준 행이 누락되지 않는지 확인한다."
+    },
+    {
+      "fixture_id": "FIX-034",
+      "category": 7,
+      "error_type": "코드 일부 불일치",
+      "address_id": "ADDR-2025-0142",
+      "target": "결과 확정 직전 같은 기준 행의 코드 대조",
+      "input": {
+        "raw_address": "경상남도 김해시 삼정동 인제로39번길 47",
+        "proposed_standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4889041030",
+          "administrative_area_code": "38070580"
+        },
+        "claimed_raw_record_id": "6291691"
+      },
+      "expected": {
+        "reject_proposed": true,
+        "reference_standardization": {
+          "standard_road_address": "경상남도 김해시 인제로39번길 47",
+          "road_name_code": "482504805656",
+          "legal_dong_code": "4825011700",
+          "administrative_area_code": "38070580"
+        }
+      },
+      "check": "다른 기준 행에서 가져온 법정동코드가 섞였으므로 제안된 결과를 확정하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-035",
+      "category": 7,
+      "error_type": "성공률 계산 오류",
+      "address_id": "ADDR-2025-0142",
+      "target": "화면 집계",
+      "input": {
+        "dataset": {
+          "run_id": "fixture-metrics",
+          "reference_version": "2025",
+          "results": [
+            {
+              "input_index": 0,
+              "record": {
+                "address_id": "ADDR-2025-0142",
+                "raw_address": "경상남도 김해시 삼정동 인제로39번길 47"
+              },
+              "status": "resolved",
+              "output": null,
+              "review": null,
+              "standardization": {
+                "status": "resolved",
+                "address": {
+                  "standard_road_address": "경상남도 김해시 인제로39번길 47",
+                  "road_name_code": "482504805656",
+                  "legal_dong_code": "4825011700",
+                  "administrative_area_code": "38070580"
+                },
+                "raw_record_ids": [
+                  "6291691"
+                ]
+              },
+              "traces": []
+            },
+            {
+              "input_index": 1,
+              "record": {
+                "address_id": "ADDR-2025-0053",
+                "raw_address": "양지1길 39"
+              },
+              "status": "held",
+              "output": null,
+              "review": {
+                "status": "tied_candidates",
+                "candidates": [
+                  {
+                    "kind": "road",
+                    "address": "대구광역시 군위군 삼국유사면 양지1길 39",
+                    "rank": 1,
+                    "raw_records": [
+                      [
+                        2025,
+                        1204723
+                      ]
+                    ],
+                    "reference_years": [
+                      2025
+                    ],
+                    "evidence": [
+                      "2025 RAW 일련번호 1204723"
+                    ],
+                    "linked_road_addresses": [
+                      "대구광역시 군위군 삼국유사면 양지1길 39"
+                    ],
+                    "linked_lot_addresses": [
+                      "대구광역시 군위군 삼국유사면 양지리 413"
+                    ],
+                    "admin_dongs": [
+                      "삼국유사면"
+                    ]
+                  },
+                  {
+                    "kind": "road",
+                    "address": "경상북도 의성군 사곡면 양지1길 39",
+                    "rank": 1,
+                    "raw_records": [
+                      [
+                        2025,
+                        5692793
+                      ]
+                    ],
+                    "reference_years": [
+                      2025
+                    ],
+                    "evidence": [
+                      "2025 RAW 일련번호 5692793"
+                    ],
+                    "linked_road_addresses": [
+                      "경상북도 의성군 사곡면 양지1길 39"
+                    ],
+                    "linked_lot_addresses": [
+                      "경상북도 의성군 사곡면 양지리 521"
+                    ],
+                    "admin_dongs": [
+                      "사곡면"
+                    ]
+                  }
+                ]
+              },
+              "standardization": null,
+              "traces": []
+            },
+            {
+              "input_index": 2,
+              "record": {
+                "address_id": "ADDR-2025-0005",
+                "raw_address": "인천광역시 강화군 하점면 강화대로 1114"
+              },
+              "status": "failed",
+              "output": null,
+              "review": null,
+              "standardization": null,
+              "traces": [
+                {
+                  "status": "failed",
+                  "reason_code": "invalid_batch_response",
+                  "module_name": "parser"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "total": 3,
+        "resolved": 1,
+        "review": 1,
+        "issue": 1,
+        "resolved_rate_fraction": "1/3"
+      },
+      "check": "후보를 제시한 보류 건을 표준화 완료 수에 포함하지 않는다."
+    },
+    {
+      "fixture_id": "FIX-036",
+      "category": 7,
+      "error_type": "중복 후보 표시",
+      "address_id": "ADDR-2025-0215",
+      "target": "후보 생성·후보 비교",
+      "input": {
+        "raw_address": "경기도 의정부시 가능동 입석로55번길 40-11",
+        "candidates": [
+          {
+            "kind": "road",
+            "address": "경기도 의정부시 입석로55번길 40-11",
+            "rank": 1,
+            "raw_records": [
+              [
+                2025,
+                1968712
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 1968712"
+            ],
+            "linked_road_addresses": [
+              "경기도 의정부시 입석로55번길 40-11"
+            ],
+            "linked_lot_addresses": [
+              "경기도 의정부시 가능동 479"
+            ],
+            "admin_dongs": [
+              "가능동"
+            ]
+          },
+          {
+            "kind": "road",
+            "address": "경기도 의정부시 입석로55번길 40-11",
+            "rank": 1,
+            "raw_records": [
+              [
+                2025,
+                1968713
+              ]
+            ],
+            "reference_years": [
+              2025
+            ],
+            "evidence": [
+              "2025 RAW 일련번호 1968713"
+            ],
+            "linked_road_addresses": [
+              "경기도 의정부시 입석로55번길 40-11"
+            ],
+            "linked_lot_addresses": [
+              "경기도 의정부시 가능동 475-1"
+            ],
+            "admin_dongs": [
+              "가능동"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "distinct_display_candidates": 1,
+        "reference_raw_ids": [
+          "1968712",
+          "1968713"
+        ]
+      },
+      "check": "같은 표준 주소와 코드 조합을 하나의 후보로 묶고 근거 행은 함께 유지한다."
+    },
+    {
+      "fixture_id": "FIX-037",
+      "category": 7,
+      "error_type": "원본 주소 덮어쓰기",
+      "address_id": "ADDR-2025-0039",
+      "target": "결과 상세 화면과 CSV 내보내기",
+      "input": {
+        "result": {
+          "input_index": 0,
+          "record": {
+            "address_id": "ADDR-2025-0039",
+            "raw_address": "전북특별자치도  고창군  해리면  평지리  수락길  7-26"
+          },
+          "status": "resolved",
+          "output": null,
+          "review": null,
+          "standardization": {
+            "status": "resolved",
+            "address": {
+              "standard_road_address": "전북특별자치도 고창군 해리면 수락길 7-26",
+              "road_name_code": "527904637504",
+              "legal_dong_code": "5279036022",
+              "administrative_area_code": "35570360"
+            }
+          },
+          "traces": []
+        }
+      },
+      "expected": {
+        "raw_address": "전북특별자치도  고창군  해리면  평지리  수락길  7-26",
+        "standard_address": "전북특별자치도 고창군 해리면 수락길 7-26"
+      },
+      "check": "원문 열의 공백을 그대로 보존하고 정제된 주소를 별도로 표시한다."
+    },
+    {
+      "fixture_id": "FIX-038",
+      "category": 7,
+      "error_type": "처리 실패 누락",
+      "address_id": "ADDR-2025-0005",
+      "target": "파서 실패와 결과 상세 화면",
+      "input": {
+        "results": [
+          {
+            "input_index": 0,
+            "record": {
+              "address_id": "ADDR-2025-0005",
+              "raw_address": "인천광역시 강화군 하점면 강화대로 1114"
+            },
+            "status": "failed",
+            "output": null,
+            "review": null,
+            "standardization": null,
+            "traces": [
+              {
+                "status": "failed",
+                "reason_code": "invalid_batch_response",
+                "module_name": "parser"
+              }
+            ]
+          },
+          {
+            "input_index": 1,
+            "record": {
+              "address_id": "ADDR-2025-0079",
+              "raw_address": "대전광역시 중구 유천동 계백로1618번길 9418"
+            },
+            "status": "no_match",
+            "output": null,
+            "review": null,
+            "standardization": null,
+            "traces": [
+              {
+                "status": "completed",
+                "reason_code": "number_not_found",
+                "module_name": "address_validation"
+              }
+            ]
+          },
+          {
+            "input_index": 2,
+            "record": {
+              "address_id": "ADDR-2025-0065",
+              "raw_address": "강원특별자치도 양양군 손양면 가평리 동명로"
+            },
+            "status": "held",
+            "output": null,
+            "review": null,
+            "standardization": null,
+            "traces": [
+              {
+                "status": "completed",
+                "reason_code": "missing_address_number",
+                "module_name": "address_validation"
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "statuses": [
+          "failed",
+          "no_match",
+          "held"
+        ],
+        "first_reason": "invalid_batch_response"
+      },
+      "check": "실행 실패, 후보 0건, 번호 누락을 서로 다른 상태와 사유로 보여 준다."
+    }
+  ],
+  "coverage": [
+    {
+      "category": 1,
+      "error_type": "공백 없음",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "단어 내부 공백",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "불규칙 공백",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "여러 공백",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "줄바꿈·탭",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "오탈자",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "지역 약칭",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "영문·한글 혼합",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "괄호·기호",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "숫자와 문자 결합",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "유니코드 차이",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 1,
+      "error_type": "비정상 입력",
+      "address_inputs": 13,
+      "fixtures": 1
+    },
+    {
+      "category": 2,
+      "error_type": "시도 누락",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 2,
+      "error_type": "시군구 누락",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 2,
+      "error_type": "읍면동 누락",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 2,
+      "error_type": "도로명 누락",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 2,
+      "error_type": "건물번호 누락",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 2,
+      "error_type": "역순 입력",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 2,
+      "error_type": "정보 중복",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 2,
+      "error_type": "지역·도로명 혼재",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 2,
+      "error_type": "상충하는 지역",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 2,
+      "error_type": "주소 두 개 결합",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "도로명 내부 공백",
+      "address_inputs": 14,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "도로명 접미사 분리",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "도로명 일부 누락",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "도로명 오타",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "동일 도로명",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "행정구역 경계 도로",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "본번 누락",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "부번 누락",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "부번 표기",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "하이픈 주변 공백",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "숫자 붙여쓰기",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "건물번호·상세번호 혼동",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "지하 표기",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "도로명 숫자 포함",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 3,
+      "error_type": "도로명 유사성",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "법정동 누락",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "본번 누락",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "본번·부번 분리",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "번지 접미사",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "산 지번",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "산 붙여쓰기",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "산 공백 변형",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "법정리 누락",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "동일 지번",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "동명 중복",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "행정동·법정동 혼동",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "지번·도로명 혼합",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 4,
+      "error_type": "본번 0·부번 0",
+      "address_inputs": 12,
+      "fixtures": 0
+    },
+    {
+      "category": 5,
+      "error_type": "토큰 누락",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "토큰 변형",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "잘못된 라벨",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "복합 토큰",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "과도한 분리",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "중복 추출",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "순서 변경",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "라벨 후보 누락",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "숫자 오인",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "상세주소 혼동",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "존재하지 않는 주소 생성",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "JSON 구조 오류",
+      "address_inputs": 0,
+      "fixtures": 2
+    },
+    {
+      "category": 5,
+      "error_type": "ID 불일치",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 5,
+      "error_type": "비결정적 출력",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 6,
+      "error_type": "상위 노드 누락",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "부모–자식 관계 오류",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "동일 이름 노드",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "도로명–법정동 다대다",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "잘못된 코드 prefix 가정",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "문자열·정수 혼용",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "NULL 처리",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "중복 DB 행",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "부번 비교 오류",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "기준연도 불일치",
+      "address_inputs": 0,
+      "fixtures": 12
+    },
+    {
+      "category": 6,
+      "error_type": "정규화 불일치",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "후보 제한",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 6,
+      "error_type": "조기 확정",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "조기 탈락",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 6,
+      "error_type": "JOIN 오류",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 6,
+      "error_type": "캐시 오류",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 7,
+      "error_type": "후보가 여러 개인데 확정",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 7,
+      "error_type": "후보 0건",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 7,
+      "error_type": "후보 점수 동률",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 7,
+      "error_type": "후보 근거 누락",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 7,
+      "error_type": "코드 일부 불일치",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 7,
+      "error_type": "주소 체계 오분류",
+      "address_inputs": 13,
+      "fixtures": 0
+    },
+    {
+      "category": 7,
+      "error_type": "성공률 계산 오류",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 7,
+      "error_type": "중복 후보 표시",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 7,
+      "error_type": "원본 주소 덮어쓰기",
+      "address_inputs": 0,
+      "fixtures": 1
+    },
+    {
+      "category": 7,
+      "error_type": "처리 실패 누락",
+      "address_inputs": 0,
+      "fixtures": 1
+    }
+  ]
+}

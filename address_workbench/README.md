@@ -8,17 +8,17 @@
 
 ```bash
 python run.py --demo
-python run.py --engine new_pipeline
+python run.py --engine pipeline
 python run.py --engine bigquery
-python run.py --engine new_pipeline --engine bigquery --port 8770
+python run.py --engine pipeline --engine bigquery --port 8770
 ```
 
-위 명령은 각각 별도의 실행 예시입니다. 기본 포트는 8765이고, 마지막 명령은 8770입니다. 아무 옵션 없이 실행하면 새 파이프라인을 사용합니다. 실제 데이터가 없는 경우 `--demo`로 화면을 확인하세요.
+위 명령은 각각 별도의 실행 예시입니다. 기본 포트는 8765이고, 마지막 명령은 8770입니다. 아무 옵션 없이 실행하면 주소 표준화 파이프라인을 사용합니다. 실제 데이터가 없는 경우 `--demo`로 화면을 확인하세요.
 
 | 엔진 | 구현 | 필요한 준비 |
 |---|---|---|
 | 시연 | `demo.py` | 준비된 가상 사례. API 호출 없음 |
-| 새 파이프라인 | `../address_pipeline/` | RAW·폐지 이력 parquet |
+| 주소 표준화 파이프라인 | `../address_standardizer/` | 카탈로그·연도별 RAW·LLM 파서 |
 | BigQuery | `bigquery_engine.py`, `../bigquery/sql/` | Google 인증, 기준자료·기준표 |
 
 ## 화면과 결과
@@ -37,7 +37,7 @@ python run.py --engine new_pipeline --engine bigquery --port 8770
 | 파일 | 역할 |
 |---|---|
 | `server.py` | HTTP, 엔진 선택, 브라우저 세션, 정적 파일 |
-| `adapter.py` | 입력·출력 계약과 결과 직렬화 |
+| `adapter.py`, `standardizer.py` | 파이프라인 연결, 입력·출력 계약과 결과 직렬화 |
 | `jobs.py` | 비동기 작업, 진행 상태, 검토 승인 |
 | `tabular.py` | CSV/XLSX 읽기와 입력 검증 |
 | `bigquery_engine.py`, `bigquery_stage.py` | BigQuery 엔진과 SQL 실행 |
@@ -46,7 +46,7 @@ python run.py --engine new_pipeline --engine bigquery --port 8770
 | `old_regions.py` | 옛 행정구역명 정리 |
 | `web/` | HTML, CSS, JavaScript 화면 |
 
-`adapter.py`에는 기존 프로젝트와의 선택적 호환 코드가 남아 있지만, 기본 실행과 두 배포 엔진은 `address_standardizer`를 불러오지 않습니다.
+`standardizer.py`가 지정한 원본 파이프라인을 `address_standardizer`로 불러오고, `adapter.py`의 `PipelineAdapter`가 워크벤치 결과 형식으로 연결합니다. [파이프라인 출처와 설정](../address_standardizer/README.md)을 참고하세요.
 
 ## 서버와 테스트
 

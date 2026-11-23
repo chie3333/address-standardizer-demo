@@ -6,7 +6,7 @@ import unittest
 from address_workbench.output_fields import COMBINED_COLUMN, OUTPUT_COLUMNS, annotate, building_lookup, raw_lookup
 
 ROOT = Path(__file__).resolve().parents[2]
-RAW_2025 = ROOT / "제공 받은 자료" / "(제공용)주소표준화어플리케이션" / "RAW_DATA" / "RAW_DATA_2025.parquet"
+RAW_2025 = ROOT / "data" / "RAW_DATA_2025.parquet"
 STANDARD = {"standard_road_address": "경기도 양주시 은현면 은현로312번길 158", "road_name_code": "416304436308",
             "legal_dong_code": "4163031025", "administrative_area_code": "31260310"}
 

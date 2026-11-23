@@ -1,0 +1,50 @@
+{
+  "duckdb_version": "2.0.0",
+  "years": {
+    "2023": {
+      "source_rows": 8245570,
+      "source_sha256": "92d55507fd2f67778ae6fe9a61d52b8510627bd02aa568995ab527d297f0779e",
+      "reconciled": true,
+      "road_and_lot_queries_compared_to_previous_db": 16,
+      "goyang_split_verified": true
+    },
+    "2024": {
+      "source_rows": 8195822,
+      "source_sha256": "69404833e5d29db3e4c42a643273c42423a80cbd4961d17d34a540ec183a8532",
+      "reconciled": true,
+      "road_and_lot_queries_compared_to_previous_db": 16,
+      "goyang_split_verified": true
+    },
+    "2025": {
+      "source_rows": 8182995,
+      "source_sha256": "c8cc8cdebd61974c83de4a437c58b86f90c863b58013c601d730d7d4ecedd345",
+      "reconciled": true,
+      "road_and_lot_queries_compared_to_previous_db": 16,
+      "goyang_split_verified": true
+    }
+  },
+  "reference_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "address_rows_materialized_in_catalog": false,
+  "comparison_default_excludes_admin": true,
+  "timing_note": "실제 원본에서 뽑은 조건으로 조회 결과 검증. 캐시 비우지 않음. 전체 정제 성능 아님.",
+  "cross_year_example": {
+    "status": "단일코드조합후보",
+    "matched_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "not_auto_confirmation": true
+  },
+  "sample_road_end_to_end_median_ms": 38.167,
+  "missing_source_error_verified": true,
+  "catalog_bytes": 59518976,
+  "source_parquet_bytes": 261297435,
+  "previous_three_db_bytes": 3182989312,
+  "new_working_total_bytes": 320816411,
+  "size_reduction_comparison": "이전 연도별 DB 합계 vs 새 단일 카탈로그+원본3개. 이전 원본 보관 용량은 비교에 더하지 않음."
+}

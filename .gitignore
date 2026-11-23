@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.openai.example
 *.env
 *.pem
 *.key
@@ -35,3 +36,23 @@ tmp/
 *.xlsx
 *.xls
 *.log
+
+# Explicitly included upstream reference data requested by the user
+!/data/
+/data/**
+!/data/**/
+!/data/ADDRESS_HISTORY_202410_202512.parquet
+!/data/RAW_DATA_2023.parquet
+!/data/RAW_DATA_2024.parquet
+!/data/RAW_DATA_2025.parquet
+!/data/README.md
+!/data/address_reference_lite/README.md
+!/data/address_reference_lite/address_catalog.duckdb
+!/data/address_reference_lite/address_lite.py
+!/data/address_reference_lite/use_address_lite.ipynb
+!/data/address_reference_lite/validation.json
+!/data/test/README.md
+!/data/test/단계별_검증_사례.json
+!/data/test/주소 매칭 로직 오류 유형 1–7.md
+!/data/test/주소_입력_1000.csv
+!/data/test/주소_정답_1000.json

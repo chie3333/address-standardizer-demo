@@ -14,11 +14,11 @@ gcloud auth application-default login
 
 ## 2. 기준자료와 테이블 준비 (처음 한 번)
 
-이 저장소에는 원본 데이터가 없습니다. 다음 순서로 **BigQuery 콘솔**에서 준비합니다.
+로컬 원본 데이터는 `data/`에 포함되어 있습니다. BigQuery 테이블은 별도로 적재해야 하며 다음 순서로 **BigQuery 콘솔**에서 준비합니다.
 
 1. [sql/00_tables.sql](sql/00_tables.sql)의 `your-gcp-project.address`를 실제 프로젝트·데이터세트로 바꿔 실행합니다. 데이터세트와 입력·결과 테이블을 만듭니다. 새 데이터세트 생성 리전은 SQL 안의 `location = 'asia-northeast3'`도 맞춰야 합니다. 기존 데이터세트의 리전과 앱의 리전을 일치시키세요.
-2. 원본 `RAW_DATA_2025.parquet`을 같은 데이터세트의 **`raw_2025`** 테이블로 적재합니다. 원본의 한글 열 이름과 자료형을 유지합니다. Parquet 적재를 사용하고 CSV로 변환하지 않습니다. 로컬 업로드가 제한되면 같은 리전의 Cloud Storage를 통해 적재합니다.
-3. `ADDRESS_HISTORY_202410_202512.parquet`을 **`address_history`** 테이블로 적재합니다. 도로명주소 월변동분의 원본 이력 스키마가 필요합니다.
+2. 원본 `data/RAW_DATA_2025.parquet`을 같은 데이터세트의 **`raw_2025`** 테이블로 적재합니다. 원본의 한글 열 이름과 자료형을 유지합니다. Parquet 적재를 사용하고 CSV로 변환하지 않습니다. 로컬 업로드가 제한되면 같은 리전의 Cloud Storage를 통해 적재합니다.
+3. `data/ADDRESS_HISTORY_202410_202512.parquet`을 **`address_history`** 테이블로 적재합니다. 도로명주소 월변동분의 원본 이력 스키마가 필요합니다.
 4. [sql/03_reference_tables.sql](sql/03_reference_tables.sql)의 프로젝트·데이터세트를 바꾸고 실행합니다. 매칭용 `raw_2025_clean`, `ref_road`, `ref_lot`, `ref_lot_keys`를 만듭니다.
 5. [sql/01_building_names.sql](sql/01_building_names.sql)의 프로젝트·데이터세트를 바꾸고 실행합니다. `building_names`를 만듭니다.
 
@@ -73,4 +73,4 @@ python run.py --engine bigquery
 | `export_input.py`, `export_results.py` | 입력 XLSX·워크벤치 결과 JSON의 CSV 변환 |
 | `schema_pipeline_results.json` | 보조 결과 적재 스키마 |
 
-실제 입력·결과 파일은 저장소에 포함하지 않습니다. 규칙·직렬화 단위 테스트는 실제 BigQuery 연결 없이 실행합니다.
+요청한 원본 검증 사례는 `data/test/`에 포함하며, 새로 생성한 실행 결과 파일은 저장소에 포함하지 않습니다. 규칙·직렬화 단위 테스트는 실제 BigQuery 연결 없이 실행합니다.

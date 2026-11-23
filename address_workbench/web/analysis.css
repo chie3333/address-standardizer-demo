@@ -1,0 +1,25 @@
+.additional-analysis { margin-top: 18px; padding: 16px; border: 1px solid #c5d6f5; border-radius: 10px; background: #f7faff; }
+.analysis-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.analysis-heading h3 { margin: 0; font-size: 15px; }
+.analysis-heading p { margin: 5px 0 0; }
+.analysis-heading button { flex-shrink: 0; }
+.analysis-result { margin-top: 10px; }
+.analysis-recommendation { margin: 12px 0; padding: 14px; border-radius: 8px; background: #eaf1ff; }
+.analysis-recommendation p { margin: 8px 0 0; line-height: 1.7; font-size: 13px; }
+.analysis-recommendation-title { color: #254fa3; }
+.analysis-recommendation .analysis-shortlist { font-weight: 700; }
+.analysis-candidate.analysis-preferred { border-color: #8cafea; border-left-width: 4px; }
+.analysis-candidate-label { color: #42659b; font-size: 12px; margin: -6px 0 12px; }
+.analysis-alternatives { margin-top: 14px; }
+.analysis-alternatives > summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+.analysis-candidate { margin-top: 12px; padding: 14px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+.analysis-candidate h4 { margin: 0 0 12px; overflow-wrap: anywhere; }
+.analysis-fields { margin: 0; font-size: 13px; line-height: 1.7; }
+.analysis-fields > div { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 8px; margin-top: 8px; }
+.analysis-fields dt { font-weight: 700; }
+.analysis-fields dd { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.analysis-sources { margin-top: 12px; font-size: 12px; color: var(--muted); }
+.analysis-sources summary { cursor: pointer; }
+.analysis-sources li { margin-top: 5px; }
+.analysis-error { color: var(--red-fg); white-space: pre-line; }
+@media (max-width: 600px) { .analysis-heading { align-items: flex-start; flex-direction: column; } .analysis-fields > div { grid-template-columns: 1fr; gap: 2px; } }

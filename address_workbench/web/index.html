@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>주소 검증 워크벤치</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/analysis.css">
+  <script type="module" src="/app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 이동</a>
+  <aside class="sidebar">
+    <a href="#/dashboard" class="brand">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span><strong>주소 워크벤치</strong><small>Address Standardization</small></span>
+    </a>
+    <nav aria-label="주 메뉴">
+      <a href="#/dashboard" data-view="dashboard"><span data-icon="dashboard"></span>결과 대시보드</a>
+      <a href="#/single" data-view="single"><span data-icon="pin"></span>단일 주소 입력</a>
+      <a href="#/batch" data-view="batch"><span data-icon="upload"></span>파일 일괄 처리</a>
+    </nav>
+    <div class="sidebar-foot">
+      <span data-icon="database"></span>
+      <div><strong id="sidebar-mode">연결 확인 중</strong><small id="sidebar-reference"></small></div>
+    </div>
+  </aside>
+  <main id="main" tabindex="-1">
+    <header class="topbar">
+      <div class="breadcrumb"><span>주소 정제</span><span data-icon="chevron"></span><strong id="breadcrumb">결과 대시보드</strong></div>
+      <div class="topbar-right">
+        <label id="engine-field" class="engine-field" hidden>처리 엔진<select id="engine-select" data-engine-choice aria-label="처리 엔진"></select></label>
+        <span id="source-chip" class="source-chip">연결 확인 중</span>
+      </div>
+    </header>
+    <div class="page">
+      <div id="app-error" class="feedback error" role="alert" hidden></div>
+      <section id="dashboard">
+        <div class="page-heading">
+          <div>
+            <h1>주소 검증 대시보드</h1>
+            <p>처리 결과를 살펴보고 주소별 후보와 검증 근거를 확인하세요.</p>
+          </div>
+          <div class="actions">
+            <button class="button" id="load-sample" type="button" hidden><span data-icon="refresh"></span>샘플 다시 불러오기</button>
+            <details id="download" class="download" hidden>
+              <summary class="button primary"><span data-icon="download"></span>결과 다운로드<span data-icon="chevron"></span></summary>
+              <div class="download-menu"><button type="button" data-export="csv">주소별 요약 CSV</button><button type="button" data-export="json">전체 결과 JSON · 근거 및 이력 포함</button></div>
+            </details>
+          </div>
+        </div>
+        <div class="notice" id="demo-banner" hidden><span data-icon="info"></span><p><strong>시연용 데이터</strong> · 주소, 검증 결과, 코드와 RAW ID는 화면 시연을 위해 만든 예시입니다.</p></div>
+        <div id="loading" class="feedback" role="status" hidden>처리 결과를 불러오는 중입니다.</div>
+        <div id="progress" class="panel progress" role="status" aria-live="polite" hidden>
+          <div class="progress-top"><strong id="progress-title">처리 중</strong><span id="progress-meta"></span></div>
+          <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+          <p id="progress-note" class="muted"></p>
+        </div>
+        <div id="dashboard-empty" class="empty panel" hidden>
+          <span data-icon="dashboard"></span><h2>처리 결과가 없습니다</h2>
+          <p>주소를 입력하거나 파일을 업로드해 첫 실행을 시작하세요.</p>
+          <div class="actions"><a class="button primary" href="#/single">단일 주소 입력</a><a class="button" href="#/batch">파일 업로드</a></div>
+        </div>
+        <div id="dashboard-content" hidden>
+          <div class="result-heading"><h2>처리 현황</h2><span id="run-label"></span></div>
+          <div class="metrics" id="metrics"></div>
+          <section class="panel tier-picker" id="tier-picker" aria-label="검토 단계" hidden></section>
+          <div class="workspace">
+            <section class="panel list-panel" aria-labelledby="list-title">
+              <div class="panel-heading"><h2 id="list-title">주소 목록</h2><span class="count" id="list-count"></span></div>
+              <div class="filters">
+                <label class="search"><span data-icon="search"></span><input id="search" type="search" placeholder="주소 또는 ID 검색" aria-label="주소 또는 ID 검색"></label>
+                <select id="status-filter" aria-label="처리 상태 필터"></select>
+                <select id="tag-filter" aria-label="표시 필터" hidden></select>
+                <div id="active-filter" hidden></div>
+              </div>
+              <div id="row-list" class="row-list" aria-label="주소 처리 결과"></div>
+              <div class="list-footer" id="pagination"></div>
+            </section>
+            <section class="panel detail-panel" id="detail" aria-label="주소 검증 상세"></section>
+          </div>
+          <details class="panel supplementary" id="supplementary">
+            <summary>상태 집계 및 배치 조회 이력</summary>
+            <div id="aggregates"></div>
+          </details>
+        </div>
+      </section>
+      <section id="single" hidden>
+        <div class="page-heading"><div><h1>단일 주소 입력</h1><p>주소 한 건의 처리 단계와 검증 근거를 확인합니다.</p></div></div>
+        <div class="panel form-panel">
+          <h2>원본 주소</h2>
+          <form id="single-form">
+            <label for="address-input">주소</label>
+            <textarea id="address-input" rows="3" maxlength="2000" placeholder="예. 시도, 시군구, 도로명과 건물번호" required></textarea>
+            <label class="engine-choice" hidden>처리 엔진<select data-engine-choice aria-label="처리 엔진"></select></label>
+            <p class="field-hint" id="single-demo" hidden>시연 모드는 준비된 샘플 주소의 결과만 반환합니다.</p>
+            <div class="actions"><button class="button primary" type="submit"><span data-icon="play"></span>주소 처리</button><button class="button" type="button" id="fill-example" hidden>샘플 주소 넣기</button></div>
+          </form>
+        </div>
+      </section>
+      <section id="batch" hidden>
+        <div class="page-heading"><div><h1>파일 일괄 처리</h1><p>파일을 선택하고 주소가 들어 있는 열을 지정하세요.</p></div></div>
+        <div class="panel form-panel">
+          <h2>주소 파일 업로드</h2>
+          <form id="batch-form">
+            <label class="file-field" for="upload"><span class="file-icon" data-icon="upload"></span><strong>CSV 또는 XLSX 파일 선택</strong><small>최대 8 MiB · 머리글 제외 16,000행</small>
+              <input type="file" id="upload" accept=".csv,.xlsx" required>
+            </label>
+            <div id="upload-status" class="field-hint" role="status"></div>
+            <div id="mapping" hidden>
+              <label id="sheet-field" for="sheet" hidden>워크시트<select id="sheet"></select></label>
+              <div class="form-grid"><label for="address-col">주소 열<select id="address-col" required></select></label><label for="id-col">ID 열 (선택)<select id="id-col"></select></label></div>
+            </div>
+            <label class="engine-choice" hidden>처리 엔진<select data-engine-choice aria-label="처리 엔진"></select></label>
+            <div class="actions"><button class="button primary" type="submit" id="run-file" disabled><span data-icon="play"></span>파일 처리</button><a id="download-sample" class="button" href="#" download="demo-addresses.csv" hidden>샘플 CSV</a></div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
